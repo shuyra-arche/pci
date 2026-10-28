@@ -1,0 +1,83 @@
+# pci
+
+Contract-only snapshot of the Shuyra PCI declarations and public protocol, plus
+the three existing pure protocol tests.
+
+This repository is the public PCI provider prerequisite for later Kernel and
+Source consumers. It is **not** a standalone PCI Driver Unit, server, runtime,
+image build, or composition catalog. It contains no hardware access, no loader,
+no Unit runtime, and no `prog-pci` image target. Source (`programs`,
+`crates/composition`) still owns the driver body and the actual `prog-pci`
+image target until the full driver migration.
+
+The Kernel-owned DMA-confirmation tests genuinely need the real PCI API and
+declaration when their Source phase moves to public packages. That partial
+closure is why this provider exists; it is not a claim that the PCI Driver Unit
+has moved.
+
+## Layout
+
+- `declaration/` — `pci-declaration` 0.1.0. The one `UnitFile` declaration
+  (`PROGRAM`, name `pci`), the ECAM/aperture supply bindings, and marks.
+- `api/` — `pci-api` 0.1.0. `Place`, `Toggle`, `Said`, `Wire`, `Call`, the
+  generated `Fail` code table, and the entry/back/BAR marks and action codes.
+  API sibling paths such as `../declaration` stay inside this provider.
+- `api/tests/protocol.rs` — the three existing Source tests, byte-identical:
+  request/reply golden bytes and bounds, malformed strictness, and
+  back-token/mark/fail-code checks.
+
+Each ordinary data type remains in its own file. No production Rust file was
+refactored, renamed, reformatted, visibility-widened, or given a new facade.
+
+## Contract preserved
+
+`PLACE`, `ENABLE`, `DISABLE`, and `RELEASE` keep their existing effect
+meaning: placement opens memory space only; enable/disable MASTER is separate;
+release removes the placement. The messages carry no trusted caller field —
+sender identity is supplied by the real Kernel, never by the new caller. The
+retained golden sizes are `Place` 22 encoded / 24 buffer, `Toggle` 21 encoded /
+24 buffer, `Said` 13 encoded / 16 buffer. Messages are not padded to buffer
+capacity.
+
+The host cases exercise data types and wire bytes only. They do not prove
+Kernel sender authentication, hardware effects, or driver lifetime behavior;
+those remain in Source/Kernel tests until their own phases.
+
+## Public pins
+
+| Component | Repository | Revision |
+| --- | --- | --- |
+| `env` | `https://github.com/shuyra-arche/env.git` | `d3000253cd5d13d466e91fafd4dbb27a5ec5aaae` |
+| `unit` | `https://github.com/shuyra-arche/unit.git` | `90396f0fda376e0693fb1b9553aa21864d241057` |
+| `system-api` | `https://github.com/shuyra-arche/system.git` | `9e5d63ca536a176583cf1b0054b4ecf7ddd88257` |
+| `wire` | `https://github.com/shuyra-arche/wire.git` | `0ff77dc4573fa2620d2fe995a18c01949d9c7e57` |
+| `mold` | `https://github.com/shuyra-arche/mold.git` | `f52501f4c91b686eded8b4bcd743b4e96084b7f9` |
+
+There is no PCI-to-IOMMU dependency. The two providers can be published in
+either order.
+
+## Build and test
+
+```sh
+cargo build --locked --target x86_64-unknown-linux-gnu --lib
+cargo build --locked --target riscv64gc-unknown-none-elf --lib
+cargo build --locked --release --target riscv64gc-unknown-none-elf --lib
+cargo test -p pci-api --locked --target x86_64-unknown-linux-gnu
+```
+
+Add `--offline` after the dependency cache is prepared. The API packages set
+`test = false` on the library, so the three cases execute through the
+integration test target, not as library unit tests.
+
+The test target's direct dependencies are `env`, `wire`, `pci-api`, and
+`pci-declaration` — a subset of the production closure. The full 13-package
+provider closure is 2 local packages plus `env`, `unit`, `system-api`, `wire`,
+`mold`, `bitflags`, `erra`, `proc-macro2`, `quote`, `syn`, and `unicode-ident`;
+there are no test-only external dependencies.
+
+## Provenance and license
+
+See `PROVENANCE.md` for the frozen Source commit, authors, old-to-new file
+hashes, test mapping, and exact limits. Source had no tracked license or
+manifest license/authors field; this snapshot adds none and asserts no
+copyright permission.

@@ -1,0 +1,98 @@
+# Provenance
+
+## Source checkpoint
+
+- Repository: `https://github.com/anreonyr/sqware.git`
+- Public pull request: **#44**
+- Frozen Source HEAD: `1854d607648ceacfa1d998004478c47c3793700c`
+- Frozen commit subject: `Consume the published Hub API contracts`
+- Source branch: `codex/shuyra-hub-api-extraction`
+- Commit author: `anreonyr <anreonyr@gmail.com>`
+- PCI subtrees: `programs/src/driver/pci/declaration`,
+  `programs/src/driver/pci/api`
+- Test subtree: `programs/src/driver/pci/api/tests`
+- Toolchain copied from Source: `nightly-2026-09-04`, edition 2024, resolver 3.
+
+The Source working tree was clean at this commit before and after this
+snapshot. This preparation wrote no Source file, deleted no Source file, and
+made no Source commit.
+
+This repository is a contract-only snapshot of declarations and API. It does
+not claim a standalone Driver Unit, server, runtime, or image build.
+
+## Authors
+
+Git history for the selected PCI subtrees records these author identities:
+
+- `anreonyr <anreonyr@gmail.com>`
+- `anreonyr <anreonyr@users.noreply.github.com>`
+
+The original history remains at `anreonyr/sqware`; this repository is a fresh
+snapshot, not a history rewrite.
+
+## License
+
+No `LICENSE`, `COPYING`, or `NOTICE` file is tracked at the frozen Source
+commit. The Source `Cargo.toml` and the selected package manifests declare
+neither `license` nor `authors`. This snapshot therefore adds no license and
+asserts no copyright permission. Do not infer a license from publication or
+from this document.
+
+## Production move and hashes
+
+The Source declaration and API files are copied byte-for-byte. There is no
+second or substitute `UnitFile`; `declaration/src/program.rs` is the only one,
+and its program name remains `pci`.
+
+| Source file | Provider file | SHA-256 (source = provider) |
+| --- | --- | --- |
+| `programs/src/driver/pci/declaration/Cargo.toml` | `pci/declaration/Cargo.toml` | `1ec6294e82169aaca9e440a35004a5e29290b98062c9bd0c1545f10669d51b8c` |
+| `programs/src/driver/pci/declaration/src/lib.rs` | `pci/declaration/src/lib.rs` | `72982f8c7a8c36a246628df7efcf792bf1abdff99cb7681169a2b9c2f00a15b4` |
+| `programs/src/driver/pci/declaration/src/bindings.rs` | `pci/declaration/src/bindings.rs` | `d393eebbbaacb920359967e7887b27d7f0052e2997a821c8533849e3a5e2c6c8` |
+| `programs/src/driver/pci/declaration/src/marks.rs` | `pci/declaration/src/marks.rs` | `3ff4bfa878106ece6765ca3f561899edc02301112d4a9e1fbc4f24da609f134f` |
+| `programs/src/driver/pci/declaration/src/program.rs` | `pci/declaration/src/program.rs` | `005c1da856e6c6d8351ff8ea43ae346c776216c7b4e8e0d4078e82bf64e50351` |
+| `programs/src/driver/pci/api/Cargo.toml` | `pci/api/Cargo.toml` | `a50f019aacb17c0c0b68a71ecc3008ecbec5706a602341dcd8af73d8b3250788` |
+| `programs/src/driver/pci/api/src/lib.rs` | `pci/api/src/lib.rs` | `74551d263b057a2a0217c75edc106a5e52ca16e7b48bd1a71f97bd4aef63e2a4` |
+| `programs/src/driver/pci/api/src/call.rs` | `pci/api/src/call.rs` | `6374a2ece2336ebac81cef9fa3e0a8a4ec5258a7b28f970e901f209bfaab4411` |
+| `programs/src/driver/pci/api/src/fail.rs` | `pci/api/src/fail.rs` | `8294ff2dd7e702dd8d21d0926c0be74b25769a02ed2ed4165361b68ae8600458` |
+| `programs/src/driver/pci/api/src/place.rs` | `pci/api/src/place.rs` | `aba49c744287c1ebad607f744c3f0f0548f18e59425295de81194d5291eba074` |
+| `programs/src/driver/pci/api/src/said.rs` | `pci/api/src/said.rs` | `9af03d6465eedc5c8ecffbfd18fc458b0e8df2e5d3fe05342a44d0fe8845cd4d` |
+| `programs/src/driver/pci/api/src/toggle.rs` | `pci/api/src/toggle.rs` | `04ed2aa623ecced5d69703df609033b59c757e1dd5de5082a194d1a2c3d32cf4` |
+| `programs/src/driver/pci/api/src/wire.rs` | `pci/api/src/wire.rs` | `a131f8868a85f34710c1ec4ca43623bb204e9ca3b24ba3d0687e45c3f29f8a55` |
+
+All 13 production files are byte-identical (`13 / 13`). The Source API has no
+`sqware.*` interface id; none was invented or renamed. No `prog-*` image target
+is owned here: Source still declares `prog-pci`.
+
+## Test ownership
+
+The three existing pure protocol tests are copied byte-identically with the API:
+
+| Source | Provider | Tests | SHA-256 |
+| --- | --- | --- | --- |
+| `programs/src/driver/pci/api/tests/protocol.rs` | `pci/api/tests/protocol.rs` | 3 | `3dff8775a11722b387eab1ff654cf81d1b31b75b5e931f76b1e58709cab897ad` |
+
+| Test | Preserved check |
+| --- | --- |
+| `requests_all_variants_golden_and_bounds` | `Place` 24/22, `Toggle` 24/21, `Said` 16/13, all four request variants, truncation/trailing, wrong action |
+| `reply_golden_and_malformed_strict` | reply 13 bytes in a 16-byte buffer, exact-only fetch, malformed lengths |
+| `contract_back_reply_token_and_marks` | back token per variant, BAR/entry marks, action codes, bidirectional fail codes |
+
+Count: **3** PCI-owned host tests. Both `--locked` and `--locked --offline`
+runs pass 3/3. The `pci-api` library keeps `test = false`; the cases execute as
+an integration test target. No old PR21 count is borrowed.
+
+## Lockfile and verification
+
+`Cargo.lock` was generated by Cargo with `cargo generate-lockfile --offline`
+from the public pins above and then exercised with `--locked` and
+`--locked --offline`. It resolves 13 packages: `pci-api`, `pci-declaration`,
+and the pinned/registry closure. No patch, replace, local Git backlink,
+vendoring, or hand-written lock entry is present.
+
+Verification artifacts are outside this repository at
+`/home/anreonyr/Develop/shuyra/evidence/pr22/provider/`, including command
+lines, working directories, exit codes, logs, metadata audits, the old-to-new
+hash map, and the final manifest. At worker handoff no commit, push, publication,
+or public full SHA existed. Root publishes after independent review; this
+snapshot does not establish Kernel independence or Stage 3/4 completion.
